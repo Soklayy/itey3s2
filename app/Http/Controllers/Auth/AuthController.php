@@ -76,7 +76,7 @@ class AuthController extends Controller
     public function me()
     {
         return response([
-            'user_id' => Auth()->user()->id,
+            'id' => Auth()->user()->id,
             'name' => Auth()->user()->name,
             'email' => Auth()->user()->email,
         ]);
