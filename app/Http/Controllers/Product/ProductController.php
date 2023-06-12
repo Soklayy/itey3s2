@@ -13,7 +13,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return response(Product::orderBY('created_at','desc')->get());
+        return response(Auth()->user()->product);//
     }
 
 

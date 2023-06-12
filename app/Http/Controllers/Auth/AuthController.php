@@ -34,26 +34,26 @@ class AuthController extends Controller
 
 
 
-     // login api
+    // login api
     public function login(Request $request)
     {
  
         $request->validate([
-            'email' => 'required',
+            'email' => 'required|exists:users,email',
             'password' => 'required',
         ]);
 
         $user = User::where('email', $request->email)->first();
         $matchPassword = Hash::check($request->password, $user->password);
 
-        if (!$user || !$matchPassword) {
-            return response()->json([
-                'message' => "email or password invalid"
+        if (!$matchPassword) {
+            return response([
+                'message' => "password incorrect"
             ]);
         }
 
         return response([
-            'message' => 'create account success',
+            'message' => 'Login success',
             'token' => $user->createToken('admin')->plainTextToken,
         ]);
 
