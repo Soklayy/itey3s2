@@ -53,7 +53,7 @@ class CartController extends Controller
         //check if item is exist it will increase
         if($cart){ 
             $qua  =  $cart->quantity;
-            $cart->quantity = $qua+1;
+            $cart->quantity = $qua+$request->quantity;
             $cart->save();
             
             return response([
