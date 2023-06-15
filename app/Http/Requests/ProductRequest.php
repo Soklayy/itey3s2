@@ -31,7 +31,7 @@ class ProductRequest extends FormRequest
     }
 
 
-    // Post method or not
+    // Post method or not (post is create // not is update)
     private function isPostMethod(){
         if($this->isMethod('post')){
             return 'required';
