@@ -5,15 +5,22 @@ namespace App\Http\Controllers\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Product::class);//policy
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return response(Auth()->user()->product);//
+    {    
+        return response(Auth()->user()->product);
     }
 
 

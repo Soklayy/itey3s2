@@ -25,10 +25,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        $token = $user->createToken('admin');
+        $token = $user->createToken('access_token')->plainTextToken;
         return response([
             'message' => 'create account success',
-            'token' => $token->plainTextToken,
+            'token' => $token,
         ]);
     }
 

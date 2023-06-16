@@ -17,8 +17,8 @@ Route::group(['middleware'=>"auth:sanctum"],function(){
     Route::apiResource('/products',ProductController::class);
 
     // cart route
-    Route::apiResource('cart',CartController::class)->except(['show']);
-    
+    Route::apiResource('cart',CartController::class);
+
 
 });
 
