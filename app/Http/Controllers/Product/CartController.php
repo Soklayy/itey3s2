@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CartRequest;
 use App\Models\Cart;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
@@ -51,9 +51,14 @@ class CartController extends Controller
     /**
      * add and increase item to cart
      */
-    public function store(CartRequest $request)
+    public function store(Request $request)
     {   
-        $request->validated();
+        //validate
+        $request->validate([
+            'product_id'=> 'required|numeric|exists:products,id',  
+            'quantity'  => 'numeric',
+        ]);
+
         $cart=Auth()->user()->cart->where('product_id',$request->product_id)->first();
 
         //check if item is exist it will increase
