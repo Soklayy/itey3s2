@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\Product;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -30,96 +32,84 @@ class CartController extends Controller
                     'product_image_path' => $cart->product->product_image_path,
                     'quantity'           => $qua,
                     'Total($)'           => $total,
-                    'increase (get method)'       => PHP_URL_HOST .route('cart.show',$cart->id),
-                    'decrease (PUT|PATCH method)' => PHP_URL_HOST .route('cart.update',$cart->id),
-                    'delete (delete method)'      => PHP_URL_HOST .route('cart.destroy',$cart->id)
+                    'increase (post method)' => route('cart.increase',$cart->id),
+                    'decrease (post method)' => route('cart.decrease',$cart->id),
+                    'remove (delete method)' => route('cart.removeItem',$cart->id),
                 ];
 
                 $grandTotal += $total;
             }
-            else  $cart->delete();
+            else  $cart->delete();//checkstock
             
         }
         
-        return response([
-            'Product in cart' => $data,
-            'Grand Total($)'  => '$grandTotal',   
-        ]);
+        
+        return $this->sendReponce([
+            'product' => $data,
+            'grand_total($)'  => $grandTotal,   
+        ],'Your cart');
     }
 
 
     /**
      * add and increase item to cart
      */
-    public function store(Request $request)
+    public function addItem(Product $product)
     {   
-        //validate
-        $request->validate([
-            'product_id'=> 'required|numeric|exists:products,id',  
-            'quantity'  => 'numeric',
-        ]);
-
-        $cart=Auth()->user()->cart->where('product_id',$request->product_id)->first();
+        $cart=Auth()->user()->cart->where('product_id',$product->id)->first();
 
         //check if item is exist it will increase
         if($cart){ 
             $qua  =  $cart->quantity;
-            $cart->quantity = $qua+$request->quantity;
+            $cart->quantity = $qua+1;
             $cart->save();
             
-            return response([
-                'message' => 'item increased'
-            ]);
+            return $this->sendMesssage('Increased item');
         }
 
         //add item to cart
         Cart::create([
             'user_id'   => Auth()->user()->id,
-            'product_id'=> $request->product_id,
-            'quantity'  => $request->quantity,
+            'product_id'=> $product->id,
+            'quantity'  => 1,
         ]);
 
-        return response([
-            'message' => 'Added item to cart'
-        ]);
+        return $this->sendMesssage('Added item');
 
     }
 
     //increase
-    public function show(Cart $cart){
-        $this->authorize('update',$cart);//policy
-        $cart->quantity += 1;
-        $cart->save();
+    public function increase(Cart $cart){
+
+        if(Gate::authorize('cart-owner',$cart)){
+            $cart->quantity += 1;
+            $cart->save();
+            return $this->sendMesssage('Item increased');
+        }
     }
 
     //decrease item
-    public function update(Cart $cart){
+    public function decrease(Cart $cart){
         
-        $this->authorize('update',$cart);//policy
+        Gate::authorize('cart-owner',$cart);//policy
         
         if($cart->quantity===1){
             $cart->delete();
-            return [
-                'message' => 'item deleted'
-            ];
+            return $this->sendMesssage('Item deleted');
         }
         
         $cart->update([
             'quantity' => $cart->quantity-=1,
         ]);
 
-        return [
-            'message' => 'item decreased'
-        ];
+        return $this->sendMesssage('Item decreased');
     }
 
     //deleted item from cart
-    public function destroy(Cart $cart){
+    public function removeItem(Cart $cart){
 
-        $this->authorize('update',$cart);//policy
+        Gate::authorize('cart-owner',$cart);//policy
         $cart->delete();
-        return [
-            'message' => 'item deleted'
-        ];
+        return $this->sendMesssage('Remove item succeed');
     }
 }

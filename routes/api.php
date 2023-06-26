@@ -17,8 +17,13 @@ Route::group(['middleware'=>"auth:sanctum"],function(){
     Route::apiResource('/products',ProductController::class);
 
     // cart route
-    Route::apiResource('cart',CartController::class);
-
-
+    Route::prefix('cart')->group(function(){
+        Route::get('/',[CartController::class,'index'])->name('cart.index');
+        Route::post('add-item/{product}',[CartController::class,'addItem'])->name('cart.addItem');
+        Route::post('increase-item/{cart}',[CartController::class,'increase'])->name('cart.increase');
+        Route::post('decrease-item/{cart}',[CartController::class,'decrease'])->name('cart.decrease');
+        Route::delete('remove-item/{cart}',[CartController::class,'removeItem'])->name('cart.removeItem');
+    });
+    
 });
 

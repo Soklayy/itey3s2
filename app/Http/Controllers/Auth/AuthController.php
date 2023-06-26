@@ -54,7 +54,7 @@ class AuthController extends Controller
 
         return response([
             'message' => 'Login success',
-            'token' => $user->createToken('admin')->plainTextToken,
+            'token' => $user->createToken('my-token')->plainTextToken,
         ]);
 
     }
